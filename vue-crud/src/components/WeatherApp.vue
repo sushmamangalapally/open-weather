@@ -1,13 +1,5 @@
 <template>
 <div class="container-fluid">
-<nav class="navbar navbar-light bg-light justify-content-between">
-  <a class="navbar-brand">Navbar</a>
-  <form class="form-inline">
-    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-  </form>
-</nav>
-
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
@@ -37,9 +29,7 @@
 <script>
 import WeatherDataService from '../service/WeatherDataService';
 import Weather from './Weather';
-
 var Highcharts = require('highcharts');
-import * as d3 from 'd3'
 
 export default {
     name: "WeatherApp",
@@ -75,164 +65,7 @@ export default {
         };
     },
     methods: {
-        d3Weather() {
-let w = 800;
-let h = 400;
-let padding = 25;
-let dataset = [
-	[10, 10],
-	[20, 50],
-	[30, 40],
-	[40, 80],
-	[50, 90],
-	[60, 50],
-	[70, 70],
-	[80, 60],
-	[90, 10],
-	[100, 50],
-	[110, 40],
-	[120, 70],
-	[130, 20],
-	[140, 40],
-	[150, 30]
-];
-
-/*create svg element*/
-let svg = d3
-	.select("div.ford3")
-	.append("svg")
-	.attr("width", w)
-	.attr("height", h)
-	.attr("id", "chart");
-
-
-/*x scale*/
-let xScale = d3.scale
-	.linear()
-	.domain([0, d3.max(dataset, d => d[0])])
-	.range([padding, w - padding]);
-
-/*y scale*/
-let yScale = d3.scale
-	.linear()
-	.domain([0, d3.max(dataset, d => d[1])])
-	.range([h - padding, padding]);
-
-/*x axis*/
-let xAxis = d3.svg
-	.axis()
-	.scale(xScale)
-	.orient("bottom");
-
-/*append x axis*/
-svg
-	.append("g")
-	.attr({
-		class: "xaxis",
-		transform: `translate(0, ${h - padding})`
-	})
-	.call(xAxis);
-
-/*y axis*/
-let yAxis = d3.svg
-	.axis()
-	.scale(yScale)
-	.orient("left");
-
-/*append y axis*/
-svg
-	.append("g")
-	.attr({
-		class: "yaxis",
-		transform: `translate(${padding}, 0)`
-	})
-	.call(yAxis);
-
-/*define line*/
-let lines = d3.svg
-	.line()
-	.x(d => xScale(d[0]))
-	.y(d => yScale(d[1]))
-	// .interpolate("monotone");
-
-/*append line*/
-// eslint-disable-next-line no-unused-vars
-let path = svg.append("path").attr({
-	d: lines(dataset),
-	class: "lineChart"
-});
-
-svg
-	.select(".lineChart")
-	// .style("opacity", 0)
-	// .transition()
-	// .duration(2500)
-	// .delay(1000)
-	.style("opacity", 1);
-
-/*add points*/
-let points = svg
-	.selectAll("circle")
-	.data(dataset)
-	.enter()
-	.append("circle");
-
-/*point attributes*/
-points
-	.attr("cy", 0)
-	.transition()
-	.duration(1500)
-	.delay((d, i) => i * 100 + 500)
-	.ease("elastic")
-	.attr({
-		cx: d => xScale(d[0]),
-		cy: d => yScale(d[1]),
-		r: 7,
-		class: "datapoint",
-		id: (d, i) => i
-	})
-	.style("opacity", 1);
-
-// let xMax = d3.max(dataset, d => d[0]),
-// 	yMax = d3.max(dataset, d => d[1]);
-
-        },
         weather() {
-//                       let averages = [
-//     [1246406400000, 21.5],
-//     [1246492800000, 22.1],
-//     [1246579200000, 23],
-//     [1246665600000, 23.8],
-//     [1246752000000, 21.4],
-//     [1246838400000, 21.3],
-//     [1246924800000, 18.3],
-//     [1247011200000, 15.4],
-//     [1247097600000, 16.4],
-//     [1247184000000, 17.7],
-//     [1247270400000, 17.5],
-//     [1247356800000, 17.6],
-//     [1247443200000, 17.7],
-//     [1247529600000, 16.8],
-//     [1247616000000, 17.7],
-//     [1247702400000, 16.3],
-//     [1247788800000, 17.8],
-//     [1247875200000, 18.1],
-//     [1247961600000, 17.2],
-//     [1248048000000, 14.4],
-//     [1248134400000, 13.7],
-//     [1248220800000, 15.7],
-//     [1248307200000, 14.6],
-//     [1248393600000, 15.3],
-//     [1248480000000, 15.3],
-//     [1248566400000, 15.8],
-//     [1248652800000, 15.2],
-//     [1248739200000, 14.8],
-//     [1248825600000, 14.4],
-//     [1248912000000, 15],
-//     [1248998400000, 13.6]
-//   ];
-
-    // let averages = [[]];
 
     let getWe = this.getData.forecast;
     getWe.forEach((el, i) => {
@@ -282,7 +115,7 @@ Highcharts.chart('container', {
       lineColor: 'purple'
     }
   }
-  
+  // 995
   ]
 });
 
@@ -324,6 +157,7 @@ Highcharts.chart('container', {
                             "forecast": JSON.parse(response.data.forecast)
                         };
                         this.weather();
+                        this.refreshNav();
                     });
 
         },
@@ -456,52 +290,17 @@ Highcharts.chart('container', {
         if (this.$route.params.location) {
             this.refreshWeatherLocation();
         }
+        // eslint-disable-next-line no-console
+        console.log(this.weatherList);
         
         // eslint-disable-next-line no-console
         console.log("this.getData")
         // eslint-disable-next-line no-console
-        console.log(this.getData )
+        console.log(this.getData);
 
-        // this.d3Weather();
-
-}
+    }
 }
 </script>
-
 <style scoped>
-svg {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%,-50%);
-}
 
-.xaxis path,
-.xaxis line,
-.yaxis path,
-.yaxis line {
-    stroke: #aaa;
-    fill: none;
-    shape-rendering: crispEdges;
-}
-
-.xaxis text,
-.yaxis text {
-    font-family: sans-serif;
-    font-size: 11px;
-    fill: #aaa;
-}
-
-.datapoint {
-    cursor: pointer;
-    stroke: #111;
-    fill: rgba(0, 150, 255, .75);
-    stroke-width: 7;
-}
-
-.lineChart {
-    fill: none;
-    stroke-width: 3;
-    stroke: rgba(100,100,100, 1);
-}
 </style>
