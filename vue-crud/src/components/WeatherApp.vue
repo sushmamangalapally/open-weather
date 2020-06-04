@@ -1,5 +1,12 @@
 <template>
 <div class="container-fluid">
+<nav class="navbar navbar-light bg-light justify-content-between">
+  <a class="navbar-brand">Navbar</a>
+  <form class="form-inline">
+    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+  </form>
+</nav>
 
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -23,6 +30,7 @@
     <div v-else>
         <h3>Not a valid city!</h3>
     </div>
+    <div id="ford3"></div>
 </div>
 </template>
 
@@ -31,7 +39,7 @@ import WeatherDataService from '../service/WeatherDataService';
 import Weather from './Weather';
 
 var Highcharts = require('highcharts');
-// import * as d3 from 'd3'
+import * as d3 from 'd3'
 
 export default {
     name: "WeatherApp",
@@ -67,9 +75,128 @@ export default {
         };
     },
     methods: {
-        // d3Weather() {
+        d3Weather() {
+let w = 800;
+let h = 400;
+let padding = 25;
+let dataset = [
+	[10, 10],
+	[20, 50],
+	[30, 40],
+	[40, 80],
+	[50, 90],
+	[60, 50],
+	[70, 70],
+	[80, 60],
+	[90, 10],
+	[100, 50],
+	[110, 40],
+	[120, 70],
+	[130, 20],
+	[140, 40],
+	[150, 30]
+];
 
-        // },
+/*create svg element*/
+let svg = d3
+	.select("div.ford3")
+	.append("svg")
+	.attr("width", w)
+	.attr("height", h)
+	.attr("id", "chart");
+
+
+/*x scale*/
+let xScale = d3.scale
+	.linear()
+	.domain([0, d3.max(dataset, d => d[0])])
+	.range([padding, w - padding]);
+
+/*y scale*/
+let yScale = d3.scale
+	.linear()
+	.domain([0, d3.max(dataset, d => d[1])])
+	.range([h - padding, padding]);
+
+/*x axis*/
+let xAxis = d3.svg
+	.axis()
+	.scale(xScale)
+	.orient("bottom");
+
+/*append x axis*/
+svg
+	.append("g")
+	.attr({
+		class: "xaxis",
+		transform: `translate(0, ${h - padding})`
+	})
+	.call(xAxis);
+
+/*y axis*/
+let yAxis = d3.svg
+	.axis()
+	.scale(yScale)
+	.orient("left");
+
+/*append y axis*/
+svg
+	.append("g")
+	.attr({
+		class: "yaxis",
+		transform: `translate(${padding}, 0)`
+	})
+	.call(yAxis);
+
+/*define line*/
+let lines = d3.svg
+	.line()
+	.x(d => xScale(d[0]))
+	.y(d => yScale(d[1]))
+	// .interpolate("monotone");
+
+/*append line*/
+// eslint-disable-next-line no-unused-vars
+let path = svg.append("path").attr({
+	d: lines(dataset),
+	class: "lineChart"
+});
+
+svg
+	.select(".lineChart")
+	// .style("opacity", 0)
+	// .transition()
+	// .duration(2500)
+	// .delay(1000)
+	.style("opacity", 1);
+
+/*add points*/
+let points = svg
+	.selectAll("circle")
+	.data(dataset)
+	.enter()
+	.append("circle");
+
+/*point attributes*/
+points
+	.attr("cy", 0)
+	.transition()
+	.duration(1500)
+	.delay((d, i) => i * 100 + 500)
+	.ease("elastic")
+	.attr({
+		cx: d => xScale(d[0]),
+		cy: d => yScale(d[1]),
+		r: 7,
+		class: "datapoint",
+		id: (d, i) => i
+	})
+	.style("opacity", 1);
+
+// let xMax = d3.max(dataset, d => d[0]),
+// 	yMax = d3.max(dataset, d => d[1]);
+
+        },
         weather() {
 //                       let averages = [
 //     [1246406400000, 21.5],
@@ -188,6 +315,15 @@ Highcharts.chart('container', {
                         console.log(response.data);
                         // response.data.forecastResponse = JSON.parse(response.data.forecastResponse);
                         this.getData = response.data;
+                        this.getData = response.data;
+                        this.getData = {
+                            "location": response.data.location,
+                            "description": response.data.description,
+                            "temperature": response.data.temperature,
+                            "icon": response.data.icon,
+                            "forecast": JSON.parse(response.data.forecast)
+                        };
+                        this.weather();
                     });
 
         },
@@ -222,6 +358,7 @@ Highcharts.chart('container', {
                         console.log(this.getData);
                         // eslint-disable-next-line no-console
                         console.log(this.weatherList);
+
                         this.weather() 
                     });
             }
@@ -324,6 +461,8 @@ Highcharts.chart('container', {
         console.log("this.getData")
         // eslint-disable-next-line no-console
         console.log(this.getData )
+
+        // this.d3Weather();
 
 }
 }
