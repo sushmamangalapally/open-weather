@@ -14,7 +14,11 @@ public class WeatherService {
     private static List<String> cityList = new ArrayList<>();
 
     static {
-        String response = getRequests.getWeatherRequests("San Francisco");        
+        String response = getRequests.getWeatherRequests("San Francisco");  
+        System.out.println("static");
+        String forecastResponse = getRequests.getForecastForWeather("San Francisco");      
+        System.out.println(forecastResponse);
+        
         if (response.length() != 0) {
             JSONObject jsonObject = new JSONObject(response);
 
@@ -22,11 +26,16 @@ public class WeatherService {
             Double temperature = (Double) main.get("temp");
             JSONArray weather = (JSONArray) jsonObject.get("weather");
             JSONObject weatherObject = weather.getJSONObject(0);
+            JSONObject jsonForecastObject = new JSONObject(forecastResponse);
+            JSONArray forecastObjList = (JSONArray) jsonForecastObject.get("list");
+            System.out.println(forecastObjList);
+            String forecastList = forecastObjList.toString();
+
 
             String description = (String) weatherObject.get("description");
             String icon = (String) weatherObject.get("icon");
             Integer idCounter = (Integer) jsonObject.get("id");
-            Weather sanFrancisco = new Weather(idCounter, "San Francisco", description, temperature, icon);
+            Weather sanFrancisco = new Weather(idCounter, "San Francisco", description, temperature, icon, forecastList);
             Boolean canAdd = true;
             for (Weather getWeather : weatherList) {
                 // String response = getRequests.getWeatherRequests(weather.getLocation());
@@ -36,7 +45,11 @@ public class WeatherService {
                 }
             }
             if (canAdd == true) {
+                System.out.println("special banana");
                 weatherList.add(sanFrancisco);
+                System.out.println("sanFrancisco");
+                System.out.println(sanFrancisco.getForecast());
+                System.out.println(weatherList);
                 cityList.add("san%20francisco");
             }
         }
@@ -60,9 +73,17 @@ public class WeatherService {
     }
 
     public JSONObject getWeatherCitiesInfo() {
+        System.out.println("getWeatherCitiesInfo");
         List<Integer> cityIdsList = new ArrayList<>();
+        Integer count = 0;
+        Weather firstWeather = null;
         for (Weather weather : weatherList) {
+            count += 1;
+            if (count == 1) {
+                firstWeather = weather;
+            }
             cityIdsList.add(weather.getId());
+            System.out.println(weather.getId());
             // String response = getRequests.getWeatherRequests(weather.getLocation());
             // different kind of solutions
             // can store in object and update every time refresh nav happens or visit city again
@@ -75,13 +96,67 @@ public class WeatherService {
                 idsParam += ",";
             }		
         }
+        System.out.println("idsParam");
+        System.out.println(idsParam);
 
         String response = getRequests.getAllWeatherRequests(idsParam);
+
+        
+        String weatherResponse = getRequests.getWeatherRequests(firstWeather.getLocation());  
         // don't have to use getAllWeatherRequests function
         // can use getId loop in cityIdsList
         // and reset everytime with setDescription, setTemperature, and setIcon
+        System.out.println(firstWeather.getLocation());
+        String forecastResponse = getRequests.getForecastForWeather(firstWeather.getLocation());      
+
+        Weather cityForecast = getWeatherInfo(firstWeather.getLocation());
+/*
+        if (weatherResponse.length() != 0) {
+            JSONObject jsonObject = new JSONObject(weatherResponse);
+
+            JSONObject main = (JSONObject) jsonObject.get("main");
+            Double temperature = (Double) main.get("temp");
+            JSONArray weather = (JSONArray) jsonObject.get("weather");
+            JSONObject weatherObject = weather.getJSONObject(0);
+            JSONObject jsonForecastObject = new JSONObject(forecastResponse);
+            JSONArray forecastObjList = (JSONArray) jsonForecastObject.get("list");
+            System.out.println(forecastObjList);
+            String forecastList = forecastObjList.toString();
+
+
+            String description = (String) weatherObject.get("description");
+            String icon = (String) weatherObject.get("icon");
+            Integer idCounter = (Integer) jsonObject.get("id");
+            Weather sanFrancisco = new Weather(idCounter, "San Francisco", description, temperature, icon, forecastList);
+            Boolean canAdd = true;
+            for (Weather getWeather : weatherList) {
+                // String response = getRequests.getWeatherRequests(weather.getLocation());
+                // JSONObject cityObject = new JSONObject(response);
+                if (getWeather.getId() == idCounter) {
+                    canAdd = false;
+                }
+            }
+            if (canAdd == true) {
+                System.out.println("special banana");
+                weatherList.add(sanFrancisco);
+                System.out.println("sanFrancisco");
+                System.out.println(sanFrancisco.getForecast());
+                System.out.println(weatherList);
+                cityList.add("san%20francisco");
+            }
+        }
+
+*/
+
+
+
         if (response.length() != 0) {
+            System.out.println("jsonObject");
+            System.out.println(cityForecast.getForecast());
+            JSONArray city = new JSONArray(cityForecast.getForecast());
+            // response
             JSONObject jsonObject = new JSONObject(response);
+            jsonObject.put("forecast", new JSONArray(cityForecast.getForecast()));
             System.out.println(jsonObject);
             return jsonObject;
         }
@@ -92,17 +167,26 @@ public class WeatherService {
 
     public Weather getWeatherInfo(String city) {
         String response = getRequests.getWeatherRequests(city);
-        if (response.length() != 0) {
+
+        String forecastResponse = getRequests.getForecastForWeather(city);
+        System.out.println(forecastResponse);
+        if (response.length() != 0 && forecastResponse.length() != 0) {
             JSONObject jsonObject = new JSONObject(response);
             JSONObject main = (JSONObject) jsonObject.get("main");
             Double temperature = (Double) main.get("temp");
             JSONArray weather = (JSONArray) jsonObject.get("weather");
             JSONObject weatherObject = weather.getJSONObject(0);
+            JSONObject jsonForecastObject = new JSONObject(forecastResponse);
+            JSONArray forecastObjList = (JSONArray) jsonForecastObject.get("list");
+            String forecastList = forecastObjList.toString();
+
+            System.out.println("forecastList");
+            System.out.println(forecastList);
 
             String description = (String) weatherObject.get("description");
             String icon = (String) weatherObject.get("icon");
             Integer idCounter = (Integer) jsonObject.get("id");
-            Weather newWeather = new Weather(idCounter, city, description, temperature, icon);
+            Weather newWeather = new Weather(idCounter, city, description, temperature, icon, forecastList);
 
             Boolean canAdd = true;
             for (Weather getWeather : weatherList) {

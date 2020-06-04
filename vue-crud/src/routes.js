@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
+import WeatherApp from '@/components/WeatherApp';
 
 Vue.use(Router);
 
@@ -9,12 +10,12 @@ const router = new Router({
     {
       path: "/",
       name: "Home",
-      component: () => import("./components/WeatherApp")
+      component: WeatherApp
     },
     {
       path: "/:location",
       name: "Weather",
-      component: () => import("./components/WeatherApp")
+      component: WeatherApp
     }
   ]
 });

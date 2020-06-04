@@ -1,11 +1,15 @@
 package com.showpad.springboot.crud.springcrud.weather;
 
+import java.util.List;
+import org.json.JSONArray;
+
 public class Weather {
     private Integer id;
     public String location;
     public String description;
     public Double temperature;
     public String icon;
+    public String forecastResponse;
 
     public Weather() {
 
@@ -17,13 +21,14 @@ public class Weather {
         this.location = location;
     }
 
-    public Weather(Integer id, String location, String description, Double temperature, String icon) {
+    public Weather(Integer id, String location, String description, Double temperature, String icon, String forecastResponse) {
         super();
         this.id = id;
         this.location = location;
         this.description = description;
         this.temperature = temperature;
         this.icon = icon;
+        this.forecastResponse = forecastResponse;
     }
     // getters and setters
     public Integer getId() {
@@ -55,5 +60,12 @@ public class Weather {
     }
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public String getForecast() {
+        return forecastResponse;
+    }
+    public void setForecast(String forecastResponse) {
+        this.forecastResponse = forecastResponse;
     }
 }

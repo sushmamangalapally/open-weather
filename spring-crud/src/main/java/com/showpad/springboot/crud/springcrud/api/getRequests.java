@@ -10,6 +10,7 @@ import java.net.*;
 public class getRequests {
     private static final String BASE_WEATHER_API_URL = "http://api.openweathermap.org/data/2.5/weather?q={city}&units=imperial&appid=56d04b44687f1ebdb10d724cdc52fd05";
     private static final String ALL_CITIES_API_URL = "http://api.openweathermap.org/data/2.5/group?id={cityIds}&units=imperial&appid=56d04b44687f1ebdb10d724cdc52fd05";
+    private static final String BASE_WEATHER_FORECAST_API_URL = "http://api.openweathermap.org/data/2.5/forecast?q={city}&units=imperial&appid=56d04b44687f1ebdb10d724cdc52fd05";
 
     static public String getWeatherRequests(String city) {
         URI uri = new UriTemplate(BASE_WEATHER_API_URL).expand(city);
@@ -23,6 +24,12 @@ public class getRequests {
         System.out.println(citiesIds);
         String allCitiesResponse = getReponse(uri);
         return allCitiesResponse;
+    }
+
+    static public String getForecastForWeather(String city) {
+        URI uri = new UriTemplate(BASE_WEATHER_FORECAST_API_URL).expand(city);
+        String weatherForecastResponse = getReponse(uri);
+        return weatherForecastResponse;
     }
 
     static public String getReponse(URI urlString) {
