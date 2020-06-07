@@ -53,6 +53,5 @@ ul.navbar {
 }
 
 div.card {
-    margin-top: 5%;
-}
+    margin: 5% 5%;}
 </style>

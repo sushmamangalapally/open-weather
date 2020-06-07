@@ -2,6 +2,7 @@ package com.showpad.springboot.crud.springcrud.weather;
 
 import java.util.List;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Weather {
     private Integer id;
@@ -10,6 +11,7 @@ public class Weather {
     public Double temperature;
     public String icon;
     public String forecastResponse;
+    public String fullInfo;
 
     public Weather() {
 
@@ -21,7 +23,7 @@ public class Weather {
         this.location = location;
     }
 
-    public Weather(Integer id, String location, String description, Double temperature, String icon, String forecastResponse) {
+    public Weather(Integer id, String location, String description, Double temperature, String icon, String forecastResponse, String fullInfo) {
         super();
         this.id = id;
         this.location = location;
@@ -29,6 +31,7 @@ public class Weather {
         this.temperature = temperature;
         this.icon = icon;
         this.forecastResponse = forecastResponse;
+        this.fullInfo = fullInfo;
     }
     // getters and setters
     public Integer getId() {
@@ -67,5 +70,12 @@ public class Weather {
     }
     public void setForecast(String forecastResponse) {
         this.forecastResponse = forecastResponse;
+    }
+
+    public String getFullInfo() {
+        return fullInfo;
+    }
+    public void setFullInfo(String fullInfo) {
+        this.fullInfo = fullInfo;
     }
 }

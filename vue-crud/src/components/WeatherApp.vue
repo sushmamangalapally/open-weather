@@ -1,5 +1,6 @@
+/* eslint-disable no-console */
 <template>
-<div class="container-fluid">
+<div>
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
@@ -13,24 +14,29 @@
                 <input class="form-control mr-sm-2" type="search" placeholder="Search Location" aria-label="Search" v-model="location">
                 <button class="btn btn-outline my-2 my-sm-0" type="submit">Search</button>
             </form>
+        <!-- <button id = "find-me" @click="geoFindMe">Show my location</button><br/> -->
+<!-- <p id = "status"></p>
+<a id = "map-link" target="_blank"></a> -->
+
         </div>
     </nav>
-
-    <div v-if="getData != ''">
-        <Weather :weatherSoloObj="getData" :averages="averages"></Weather>
+    <div class="container-fluid">
+        <div v-if="getData != ''">
+            <Weather :weatherSoloObj="getData" :averages="averages" :info="info"></Weather>
+        </div>
+        <div v-else>
+            <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <h3>Not a valid city!</h3>
+            </div>
+        </div>
     </div>
-    <div v-else>
-        <h3>Not a valid city!</h3>
     </div>
-    <div id="ford3"></div>
-</div>
 </template>
 
 <script>
 import WeatherDataService from '../service/WeatherDataService';
 import Weather from './Weather';
 var Highcharts = require('highcharts');
-
 export default {
     name: "WeatherApp",
     components: {
@@ -52,6 +58,8 @@ export default {
             weatherList: [],
             link: "",
             averages: [],
+            info: {},
+            "windSpeed": 0,
             getData: {
                 location: "",
                 icon: "",
@@ -65,6 +73,57 @@ export default {
         };
     },
     methods: {
+//     success(position) {
+//     const latitude  = position.coords.latitude;
+//     const longitude = position.coords.longitude;
+//     fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAJftp0WQ5M0EYPhGCzVBwoiHtA9v8wZLc`)
+//       .then(response => {
+//           // eslint-disable-next-line no-console
+//           console.log('success!')
+//           // eslint-disable-next-line no-console
+//           console.log(response)
+//         //   console.log(response)
+//       if (response.status !== 200) {
+//         // eslint-disable-next-line no-console
+//         console.log('Looks like there was a problem. Status Code: ' +
+//           response.status);
+//         return;
+//       }
+
+//       // Examine the text in the response
+//       response.json().then(function(data) {
+//         // eslint-disable-next-line no-console
+//         console.log(this);
+//         // eslint-disable-next-line no-console
+//         console.log(data.results[0]["address_components"][3]);
+//     //    this.refreshWeatherLocation('Miami')
+
+//             this.location = data.results[0]["address_components"][3]["long_name"];
+//             return data.results[0]["address_components"][3]["long_name"]
+//       });
+//     }
+//     )
+    
+
+    
+
+//     // status.textContent = '';
+//   },
+//         geoFindMe() {
+
+
+ 
+
+//   if(!navigator.geolocation) {
+//     // status.textContent = 'Geolocation is not supported by your browser';
+//   } else {
+//     // status.textContent = 'Locating…';
+//     let loc = navigator.geolocation.getCurrentPosition(this.success, () => alert('No location found!'));
+//     // eslint-disable-next-line no-console
+//     console.log(loc)
+//   }
+
+// },
         weather() {
 
     let getWe = this.getData.forecast;
@@ -77,12 +136,13 @@ export default {
 
   // eslint-disable-next-line no-console
   console.log(this.averages)
+  this.refreshNav();
 
 
 Highcharts.chart('container', {
 
   title: {
-    text: 'Forecast Timeline for Next 5 Days Per 3 Hour'
+    text: 'Forecast Timeline for Next 5 Days For Every 3 Hour'
   },
 
   xAxis: {
@@ -126,6 +186,8 @@ Highcharts.chart('container', {
             WeatherDataService.retrieveAllWeather() //HARDCODED
                 .then(response => {
                     // eslint-disable-next-line no-console
+                    console.log("refreshNav");
+                    // eslint-disable-next-line no-console
                     console.log(response.data);
                     let list = response.data.list;
                     this.weatherList = list.reverse();
@@ -145,19 +207,40 @@ Highcharts.chart('container', {
                         // eslint-disable-next-line no-console
                         console.log('searchWeather');
                         // eslint-disable-next-line no-console
+                        console.log(response);
+                        // eslint-disable-next-line no-console
                         console.log(response.data);
                         // response.data.forecastResponse = JSON.parse(response.data.forecastResponse);
                         this.getData = response.data;
                         this.getData = response.data;
+                        let info = JSON.parse(response.data.fullInfo);
+                        // eslint-disable-next-line no-console
+                        console.log("BOOO")
+                        // eslint-disable-next-line no-console
+                        console.log(info)
                         this.getData = {
                             "location": response.data.location,
+                            "locationName": info.name,
                             "description": response.data.description,
                             "temperature": response.data.temperature,
                             "icon": response.data.icon,
-                            "forecast": JSON.parse(response.data.forecast)
+                            "forecast": response.data !== "" ? JSON.parse(response.data.forecast) : '',
+                            "date": null,
+                            "windSpeed": info.wind.speed,
+                            "feelsLike": info.main.feels_like,
+                            "fullInfo": info
                         };
-                        this.weather();
-                        this.refreshNav();
+                        // eslint-disable-next-line no-console
+                        console.log(this.getData)
+                        if (response.data !== "") {
+                            this.weather();
+                        }
+                        else {
+
+                            this.getData = '';
+                            this.refreshNav();
+                        }
+                        // this.refreshNav();
                     });
 
         },
@@ -170,7 +253,12 @@ Highcharts.chart('container', {
                         // eslint-disable-next-line no-console
                         console.log(response);
 
+                        this.refreshNav();
                         let list = response.data.list;
+                        // eslint-disable-next-line no-console
+                        console.log("refreshWeather");
+                        // eslint-disable-next-line no-console
+                        console.log(list);
 
                         let lastRecentParseInfo = list[list.length - 1];
 
@@ -179,13 +267,25 @@ Highcharts.chart('container', {
                         console.log("lastRecentParseInfo")
                         // eslint-disable-next-line no-console
                         console.log(lastRecentParseInfo)
+                        if (response.data !== "") {
+                            let info = {wind: {speed: ""}, main: {feels_like: ""}};
+                            if (response.data.fullInfo) {
+                                info = JSON.parse(response.data.fullInfo);
+                            }
+                            
+            // this.refreshWeatherLocation();
                         this.getData = {
                             "location": lastRecentParseInfo.name,
+                            "locationName": info.name == undefined ? lastRecentParseInfo.name : info.name,
                             "description": lastRecentParseInfo.weather[0].description,
                             "temperature": lastRecentParseInfo.main.temp,
                             "icon": lastRecentParseInfo.weather[0].icon,
-                            "forecast": response.data.forecast
+                            "forecast": response.data.forecast,
+                            "windSpeed": info.wind.speed === "" ? lastRecentParseInfo.wind.speed : info.wind.speed,
+                            "feelsLike": info.main.feels_like == "" ? lastRecentParseInfo.main.feels_like : info.main.feels_like,
+                            "fullInfo": info
                         };
+                        }
                         // eslint-disable-next-line no-console
                         console.log("WATAHHHHH");
                         // eslint-disable-next-line no-console
@@ -202,6 +302,7 @@ Highcharts.chart('container', {
                         console.log(this.getData);
                         // eslint-disable-next-line no-console
                         console.log(this.weatherList);
+                        // this.info = {};
         },
         goLink(name) {
             // eslint-disable-next-line no-console
@@ -228,6 +329,10 @@ Highcharts.chart('container', {
             if (this.location) {
                 WeatherDataService.searchWeather(this.location).then((response) => {
                     this.$router.push(`/${this.location}`);
+                    // eslint-disable-next-line no-console
+                    console.log("validateAndSearch")
+                    // eslint-disable-next-line no-console
+                    console.log(response)
                     this.getData = response.data;
                     // var historyObj = JSON.parse(localStorage.getItem('cities'));
                     // if (!(historyObj.includes(name))) {
@@ -259,7 +364,10 @@ Highcharts.chart('container', {
             "location": "",
             "description": "",
             "temperature": 0,
-            "icon": ""
+            "icon": "",
+            "feelsLike": 0,
+            fullInfo: {},
+            "locationName": ''
         };
     },
     created() {
@@ -302,5 +410,4 @@ Highcharts.chart('container', {
 }
 </script>
 <style scoped>
-
 </style>
