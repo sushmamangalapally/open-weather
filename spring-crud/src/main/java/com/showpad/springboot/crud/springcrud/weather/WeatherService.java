@@ -25,7 +25,7 @@ public class WeatherService {
                 String fullInfoToString = jsonObject.toString();
 
                 JSONObject main = (JSONObject) jsonObject.get("main");
-                Double temperature = (Double) main.get("temp");
+                double temperature = (double) main.get("temp");
                 JSONArray weather = (JSONArray) jsonObject.get("weather");
                 JSONObject weatherObject = weather.getJSONObject(0);
                 JSONObject jsonForecastObject = new JSONObject(forecastResponse);
