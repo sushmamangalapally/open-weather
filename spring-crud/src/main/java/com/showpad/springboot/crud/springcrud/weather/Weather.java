@@ -1,9 +1,5 @@
 package com.showpad.springboot.crud.springcrud.weather;
 
-import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 public class Weather {
     private Integer id;
     public String location;
