@@ -10,7 +10,7 @@
             </div>
             <form class="form-inline my-2 my-lg-0 header__search" @submit="validateAndSearch">
                 <input class="form-control mr-sm-2" type="search" placeholder="Search Location" aria-label="Search" v-model="location">
-                <button class="btn btn-outline my-2 my-sm-0" type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+                <button class="btn btn-outline my-2 my-sm-0" type="submit"><i class="fa fa-search" aria-hidden="true"  aria-label="search"></i></button>
             </form>
         </header>
         <template v-if="getData != ''">

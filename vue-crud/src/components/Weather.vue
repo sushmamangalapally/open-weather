@@ -129,7 +129,9 @@ export default {
     }
 
     p.card-text > span {
-        font-size: 0.5em;
+        font-size: 0.75em;
+        font-weight: 600;
+        color: #9a9999;
     }
 
     div.today-group {
