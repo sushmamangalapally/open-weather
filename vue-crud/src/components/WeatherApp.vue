@@ -1,30 +1,29 @@
 <template>
-    <div>
-        <nav class="navbar navbar-expand-lg navbar-light">
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
-                    <li v-for="cityWeather in weatherList" v-bind:key="cityWeather.id" class="nav-item">
-                        <span v-on:click="goLink(cityWeather.name)" class="city-info">
-                            {{cityWeather.name}} <img class="card-img" :src="'http://openweathermap.org/img/w/'+cityWeather.weather[0].icon+'.png'" alt="Weather icon" style="width: 60px"> {{cityWeather.main.temp}}
-                        </span>
-                    </li>
-                </ul>
-                <form class="form-inline my-2 my-lg-0" @submit="validateAndSearch">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search Location" aria-label="Search" v-model="location">
-                    <button class="btn btn-outline my-2 my-sm-0" type="submit">Search</button>
-                </form>
-            </div>
-        </nav>
-        <div class="container-fluid">
-            <div v-if="getData != ''">
-                <Weather :weatherSoloObj="getData" :averages="averages" :info="info"></Weather>
-            </div>
-            <div v-else>
-                <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                    <h3>Not a valid city!</h3>
+    <div class="grid-container">
+        <header class="header">
+            <div class="navbar">
+                <div v-for="cityWeather in weatherList" v-bind:key="cityWeather.id" class="nav-item">
+                    <span v-on:click="goLink(cityWeather.name)" class="city-info">
+                        {{cityWeather.name}} <img class="card-img" :src="'http://openweathermap.org/img/w/'+cityWeather.weather[0].icon+'.png'" alt="Weather icon" style="width: 60px"> {{cityWeather.main.temp}}
+                    </span>
                 </div>
             </div>
-        </div>
+            <form class="form-inline my-2 my-lg-0 header__search" @submit="validateAndSearch">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search Location" aria-label="Search" v-model="location">
+                <button class="btn btn-outline my-2 my-sm-0" type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+            </form>
+        </header>
+        <template v-if="getData != ''">
+            <Weather :weatherSoloObj="getData" :averages="averages" :info="info"></Weather>
+        </template>
+        <template v-else>
+            <aside class="sidenav"></aside>
+            <main class="main"><h3>Not a valid city!</h3></main>
+        </template>
+        <footer class="footer">
+            <div class="footer__copyright">&copy; 2020</div>
+            <div class="footer__signature">Made by Sushma</div>
+        </footer>
     </div>
 </template>
 
@@ -32,6 +31,7 @@
 import WeatherDataService from '../service/WeatherDataService';
 import Weather from './Weather';
 var Highcharts = require('highcharts');
+
 export default {
     name: "WeatherApp",
     components: {
@@ -60,7 +60,8 @@ export default {
                 icon: "",
                 temperature: 0,
                 description: "",
-                forecast: []
+                forecast: [],
+                time: ""
             },
             searchHistory: {
                 city: []
@@ -75,7 +76,7 @@ export default {
             })
 
             // eslint-disable-next-line no-console
-            console.log(this.averages)
+            // console.log(this.averages)
             this.refreshNav();
 
             Highcharts.chart('container', {
@@ -106,11 +107,11 @@ export default {
                     name: 'Temperature',
                     data: this.averages,
                     zIndex: 1,
-                    color: 'violet',
+                    color: 'forestgreen',
                     marker: {
                     fillColor: 'white',
                     lineWidth: 2,
-                    lineColor: 'purple'
+                    lineColor: '#006666'
                     }
                 }
                 ]
@@ -128,6 +129,19 @@ export default {
                 this.weatherList = list.reverse();
             });
         },
+        toTimeZone(unix_timestamp) {
+            var date = new Date(unix_timestamp * 1000);
+            // Hours part from the timestamp
+            // var hours = date.getHours();
+            // // Minutes part from the timestamp
+            // var minutes = "0" + date.getMinutes();
+            // // Seconds part from the timestamp
+            // var seconds = "0" + date.getSeconds();
+
+            // Will display time in 10:30:23 format
+            // var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+            return date.toDateString();
+        },
         refreshWeatherLocation() {
             // eslint-disable-next-line no-console
             // console.log(this.$route.path)
@@ -144,6 +158,8 @@ export default {
                 // console.log(response.data);
                 this.getData = response.data;
                 let info = JSON.parse(response.data.fullInfo);
+                // eslint-disable-next-line no-console
+                // console.log(info);
 
                 this.getData = {
                     "location": response.data.location,
@@ -154,8 +170,16 @@ export default {
                     "forecast": response.data !== "" ? JSON.parse(response.data.forecast) : '',
                     "date": null,
                     "windSpeed": info.wind.speed,
+                    "cloudiness": info.clouds.all,
+                    "windDir": info.wind.deg,
+                    "minTemp": info.main.temp_min,
+                    "maxTemp": info.main.temp_max,
                     "feelsLike": info.main.feels_like,
-                    "fullInfo": info
+                    "fullInfo": info,
+                    "humidity": info.main.humidity,
+                    "visibility": info.visibility*0.000621371,
+                    "pressure": info.main.pressure,
+                    "time": this.toTimeZone(info.dt)
                 };
 
                 if (response.data !== "") {
@@ -205,13 +229,21 @@ export default {
                         "forecast": response.data.forecast,
                         "windSpeed": info.wind.speed === "" ? lastRecentParseInfo.wind.speed : info.wind.speed,
                         "feelsLike": info.main.feels_like == "" ? lastRecentParseInfo.main.feels_like : info.main.feels_like,
-                        "fullInfo": info
+                        "fullInfo": info,
+                        "cloudiness": info.clouds.all === undefined ? lastRecentParseInfo.clouds.all : info.clouds.all,
+                        "windDir": info.wind.deg === undefined ? lastRecentParseInfo.wind.deg : info.wind.deg,
+                        "minTemp": info.main.temp_min === undefined ? lastRecentParseInfo.main.temp_min : info.main.temp_min,
+                        "maxTemp": info.main.temp_max === undefined ? lastRecentParseInfo.main.temp_max : info.main.temp_max,
+                        "humidity": info.main.humidity === undefined ? lastRecentParseInfo.main.humidity : info.main.humidity,
+                        "visibility": info.visibility === undefined ? lastRecentParseInfo.visibility : info.visibility*0.000621371,
+                        "pressure": info.main.pressure === undefined ? lastRecentParseInfo.main.pressure : info.main.pressure,
+                        time: info.dt === undefined ? this.toTimeZone(lastRecentParseInfo.dt) : this.toTimeZone(info.dt)
                     };
                     }
                     // eslint-disable-next-line no-console
-                    console.log(this.getData);
+                    // console.log(this.getData);
                     // eslint-disable-next-line no-console
-                    console.log(this.weatherList);
+                    // console.log(this.weatherList);
 
                     this.weather() 
                 });
@@ -252,7 +284,7 @@ export default {
                 this.searchHistory = JSON.parse(localStorage.getItem('cities'));
             }
             // eslint-disable-next-line no-console
-            console.log(this.searchHistory);
+            // console.log(this.searchHistory);
         },
         addHistory(dataToSave) {
             if (localStorage.getItem('cities')) {
